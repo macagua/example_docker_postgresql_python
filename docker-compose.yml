@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  db:
+    image: "postgres:${POSTGRES_VERSION}"
+    container_name: ${POSTGRES_CONTAINER}
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSW}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - ${POSTGRES_PORT}:5432
+    volumes:
+      - db-data:/var/lib/postgresql/data/pgdata
+    networks:
+      - net
+    restart: always
+    # Provide healthcheck script options for startup
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d ${POSTGRES_DB} -g ${POSTGRES_HOST} -p ${POSTGRES_PORT} -u ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  db-data:
+
+networks:
+  net:
+    driver: bridge
